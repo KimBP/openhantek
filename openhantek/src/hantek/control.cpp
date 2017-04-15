@@ -351,9 +351,7 @@ namespace Hantek {
 			else {
 				// Normal mode, channels are using their separate buffers
 				sampleCount = totalSampleCount / HANTEK_CHANNELS;
-				// if device is 6022BE, drop first 1000 samples
-				if (this->device->getModel() == MODEL_DSO6022BE)
-					sampleCount -= 1000;
+
 				for(int channel = 0; channel < HANTEK_CHANNELS; ++channel) {
 					if(this->settings.voltage[channel].used) {
 						// Resize sample vector
@@ -377,8 +375,6 @@ namespace Hantek {
 						else {
 							if (this->device->getModel() == MODEL_DSO6022BE) {
 								bufferPosition += channel;
-						        // if device is 6022BE, offset 1000 incrementally
-								bufferPosition += 1000 * 2;
 							}
 							else
 								bufferPosition += HANTEK_CHANNELS - 1 - channel;
