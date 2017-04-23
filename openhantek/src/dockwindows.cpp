@@ -564,6 +564,8 @@ VoltageDock::VoltageDock(DsoSettings *settings, QWidget *parent, Qt::WindowFlags
 		this->gainComboBox[channel]->addItems(this->gainStrings);
 		
 		this->usedCheckBox.append(new QCheckBox(this->settings->scope.voltage[channel].name));
+		// TODO: This might be relevant to 6022BE only
+		this->x10CheckBox.append(new QCheckBox(QString("x10")));
 	}
 	
 	this->dockLayout = new QGridLayout();
@@ -572,6 +574,7 @@ VoltageDock::VoltageDock(DsoSettings *settings, QWidget *parent, Qt::WindowFlags
 	for(int channel = 0; channel < this->settings->scope.voltage.count(); ++channel) {
 		this->dockLayout->addWidget(this->usedCheckBox[channel], channel * 2, 0);
 		this->dockLayout->addWidget(this->gainComboBox[channel], channel * 2, 1);
+		this->dockLayout->addWidget(this->x10CheckBox[channel], channel * 2 +1, 0);
 		this->dockLayout->addWidget(this->miscComboBox[channel], channel * 2 + 1, 1);
 	}
 
@@ -586,6 +589,7 @@ VoltageDock::VoltageDock(DsoSettings *settings, QWidget *parent, Qt::WindowFlags
 		connect(this->gainComboBox[channel], SIGNAL(currentIndexChanged(int)), this, SLOT(gainSelected(int)));
 		connect(this->miscComboBox[channel], SIGNAL(currentIndexChanged(int)), this, SLOT(miscSelected(int)));
 		connect(this->usedCheckBox[channel], SIGNAL(toggled(bool)), this, SLOT(usedSwitched(bool)));
+		connect(this->x10CheckBox[channel], SIGNAL(toggled(bool)), this, SLOT(x10Switched(bool)));
 	}
 	
 	// Set values
@@ -596,6 +600,7 @@ VoltageDock::VoltageDock(DsoSettings *settings, QWidget *parent, Qt::WindowFlags
 			this->setMode((Dso::MathMode) this->settings->scope.voltage[channel].misc);
 		this->setGain(channel, this->settings->scope.voltage[channel].gain);
 		this->setUsed(channel, this->settings->scope.voltage[channel].used);
+		this->setX10(channel, this->settings->scope.voltage[channel].x10);
 	}
 }
 
@@ -665,6 +670,19 @@ int VoltageDock::setUsed(int channel, bool used) {
 	return -1;
 }
 
+/// \brief Enables/disabled x10 divider for a channel
+/// \param channel The channel to enable/disable
+/// \param used True if probe for channel is x10
+/// \return Index of channel, -1 on error
+int VoltageDock::setX10(int channel, bool used) {
+	if (channel >= 0 && channel < this->settings->scope.voltage.count()) {
+		this->x10CheckBox[channel]->setChecked(used);
+		return channel;
+	}
+
+	return -1;
+}
+
 /// \brief Called when the gain combo box changes it's value.
 /// \param index The index of the combo box item.
 void VoltageDock::gainSelected(int index) {
@@ -717,5 +735,22 @@ void VoltageDock::usedSwitched(bool checked) {
 	if(channel < this->settings->scope.voltage.count()) {
 		this->settings->scope.voltage[channel].used = checked;
 		emit usedChanged(channel, checked);
+	}
+}
+
+/// \brief Called when the x10 checkbox is switched.
+/// \param checked The check-state of the checkbox.
+void VoltageDock::x10Switched(bool checked) {
+	int channel;
+
+	// Which checkbox was it?
+	for(channel = 0; channel < this->settings->scope.voltage.count(); ++channel)
+		if(this->sender() == this->x10CheckBox[channel])
+			break;
+
+	// Send signal if it was one of the checkboxes
+	if(channel < this->settings->scope.voltage.count()) {
+		this->settings->scope.voltage[channel].x10 = checked;
+		emit x10Changed(channel, checked);
 	}
 }

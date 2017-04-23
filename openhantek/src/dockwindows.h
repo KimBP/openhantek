@@ -164,6 +164,7 @@ class VoltageDock : public QDockWidget {
 		int setGain(int channel, double gain);
 		int setMode(Dso::MathMode mode);
 		int setUsed(int channel, bool used);
+		int setX10(int channel, bool used);
 	
 	protected:
 		void closeEvent(QCloseEvent *event);
@@ -171,6 +172,7 @@ class VoltageDock : public QDockWidget {
 		QGridLayout *dockLayout; ///< The main layout for the dock window
 		QWidget *dockWidget; ///< The main widget for the dock window
 		QList<QCheckBox *> usedCheckBox; ///< Enable/disable a specific channel
+		QList<QCheckBox *> x10CheckBox; ///< Divide by 10 enabled on probe
 		QList<QComboBox *> gainComboBox; ///< Select the vertical gain for the channels
 		QList<QComboBox *> miscComboBox; ///< Select coupling for real and mode for math channels
 		
@@ -185,12 +187,14 @@ class VoltageDock : public QDockWidget {
 		void gainSelected(int index);
 		void miscSelected(int index);
 		void usedSwitched(bool checked);
+		void x10Switched(bool checked);
 	
 	signals:
 		void couplingChanged(unsigned int channel, Dso::Coupling coupling); ///< A coupling has been selected
 		void gainChanged(unsigned int channel, double gain); ///< A gain has been selected
 		void modeChanged(Dso::MathMode mode); ///< The mode for the math channels has been changed
 		void usedChanged(unsigned int channel, bool used); ///< A channel has been enabled/disabled
+		void x10Changed(unsigned int channel, bool used); ///< An x10 has been enabled/disabled
 };
 
 

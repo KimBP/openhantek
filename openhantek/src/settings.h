@@ -131,6 +131,7 @@ struct DsoSettingsScopeVoltage {
 	double offset; ///< Vertical offset in divs
 	double trigger; ///< Trigger level in V
 	bool used; ///< true if this channel is enabled
+	bool x10; ///< true if x10 is enabled
 };
 
 ////////////////////////////////////////////////////////////////////////////////
